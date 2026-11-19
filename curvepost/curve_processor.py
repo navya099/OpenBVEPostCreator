@@ -1,8 +1,9 @@
-from common.common_utils import format_distance
+from common.bve_syntax import object_folder_from
+from common.common_utils import format_station_km
 from curvepost.curve_data_filter import CurveDataFilter
 from curvepost.curve_util import cal_speed
 from curvepost.curveline.curveline import CurveLineProcessor
-from curvepost.curveline.object_facotry import CurveObjectFactory
+from curvepost.curveline.object_factory import CurveObjectFactory
 
 
 class CurveProcessor:
@@ -22,14 +23,14 @@ class CurveProcessor:
     def build(self, start, end, ipdatas, structure_processor):
         object_index = self.start_idx
         objects = []
-        object_folder = self.target_directory.split("Object/")[-1]
+        object_folder = object_folder_from(self.target_directory)
 
         valid_ips = self.filter.filter(ipdatas, start, end)
-        for i, (ip, lines) in enumerate(valid_ips):
+        for ip, lines in valid_ips:
             for curvetype, station in lines:
                 structure = structure_processor.define_bridge_tunnel_at_station(station)
-                station_text = format_distance(station)
-                img_f_name = f'IP{i+1}_{curvetype}'
+                station_text = format_station_km(station)
+                img_f_name = f'IP{ip.IPNO}_{curvetype}'
                 openfile_name = f'{curvetype}_{structure}용'
                 speed = int(cal_speed(ip.radius))
 

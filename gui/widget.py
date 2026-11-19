@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-import tkinter.font as tkfont
 
 
 # ── 색상 팔레트 ───────────────────────────────────────────────────────────

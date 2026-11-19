@@ -4,7 +4,7 @@ import ezdxf
 class NormalSectionProcessor:
     """일밴개소용 곡선표처리"""
     @staticmethod
-    def processs(file_path, modifed_path, new_text):
+    def process(file_path, modifed_path, new_text):
         """DXF 파일의 특정 텍스트를 새 텍스트로 교체하는 함수"""
         try:
             doc = ezdxf.readfile(file_path)

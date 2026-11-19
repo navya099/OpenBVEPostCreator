@@ -44,10 +44,7 @@ class TunnelProcessor:
         style_name = 'GHS'
 
         # 텍스트 스타일 생성
-        try:
-            doc.styles.add(style_name, font='H2GTRE.ttf')
-        except:
-            doc.styles.add(style_name, font='HYGTRE.ttf')
+        doc.styles.add(style_name, font='H2GTRE.ttf')
 
         # 텍스트 추가
         msp.add_text(text, dxfattribs={'insert': (text_x, text_y), 'height': 75, 'width': width, 'style': style_name})
@@ -56,6 +53,5 @@ class TunnelProcessor:
         if not filename.endswith('.dxf'):
             filename += '.dxf'
 
-        # DXF 파일 저장
-        final_dir = self.work_directory + filename
+        # DXF 파일 저장 (filename은 전체 경로)
         doc.saveas(filename)

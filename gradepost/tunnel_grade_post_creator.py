@@ -23,10 +23,7 @@ class TunnelPitchCreator:
 
         # 텍스트 스타일 설정 및 추가
         style_name = 'GHS'
-        try:
-            doc.styles.add(style_name, font='H2GTRE.ttf')
-        except:
-            doc.styles.add(style_name, font='HYGTRE.ttf')
+        doc.styles.add(style_name, font='H2GTRE.ttf')
 
         # 정수부 텍스트 추가
         self.create_text(msp, formatted_text, text_x, text_y, 59.9864, 1, style_name)
@@ -112,7 +109,7 @@ class TunnelPitchCreator:
 
         return formatted_text, text_x, text_y, is_negative  # 소수부가 없으면 정수부만 반환
 
-    def create_text(sefl, msp, text, text_x, text_y, height, width, style_name):
+    def create_text(self, msp, text, text_x, text_y, height, width, style_name):
         msp.add_text(text, dxfattribs={
             'insert': (text_x, text_y),
             'height': height,

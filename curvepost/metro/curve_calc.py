@@ -1,7 +1,8 @@
+from curvepost.curve_util import cal_speed
+
+
 class CurveCalculator:
-    @staticmethod
-    def cal_speed(radius: float) -> float:
-        return (radius * 160 / 11.8) ** 0.5
+    cal_speed = staticmethod(cal_speed)
 
     @staticmethod
     def cal_cant(speed: float, radius: float, original_cant: float) -> float:

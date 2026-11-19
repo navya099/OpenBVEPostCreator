@@ -45,4 +45,6 @@ class C3DVIPDATABuilder(VIPDATABuilder):
             current_ip.BVC_STA = vipsta - (vlength / 2)  # BVC
             current_ip.EVC_STA = vipsta + (vlength / 2)  # EVC
 
+        if current_ip:  # 마지막 IP 저장
+            vip_list.append(current_ip)
         return vip_list

@@ -19,5 +19,5 @@ class DialogService(ABC):
         pass
 
     @abstractmethod
-    def oepn_track_setting(self) -> dict[str, str] | None:
+    def open_track_setting(self) -> dict[str, str] | None:
         pass

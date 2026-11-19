@@ -18,18 +18,14 @@ class SpiralProcessor:
         img_f_name_for_prev = str(int(radius))
         file_path = os.path.join(self.source_directory, '곡선표.dxf')
         modifed_path = os.path.join(self.work_directory, '곡선표-수정됨.dxf')
-        final_output_image = os.path.join(self.work_directory, img_f_name_for_prev + '.png')
-        img_f_name_for_tunnel = f'{img_f_name}_{img_f_name_for_prev}'
-
+        final_output_image = os.path.join(self.work_directory, f'{img_f_name}_{img_f_name_for_prev}.png')
 
         if structure == '터널':
             self.tp.process(modifed_path, img_f_name_for_prev)
             target_size = (238, 200)
         else:
-            NormalSectionProcessor.processs(file_path, modifed_path, img_f_name_for_prev)
+            NormalSectionProcessor.process(file_path, modifed_path, img_f_name_for_prev)
             target_size = (500, 300)
-
-        final_output_image = os.path.join(self.work_directory, img_f_name_for_tunnel + '.png')
 
         output_paths = self.converter.convert_dxf2img([modifed_path], img_format='.png')
 

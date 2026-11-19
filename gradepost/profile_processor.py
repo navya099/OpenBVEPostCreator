@@ -1,14 +1,16 @@
 from dxf_manager.replacer import DXFReplacer
 from gradepost.normal_post_processor import NormalGradePostCreator
 from gradepost.pitch_util import get_vcurve_lines, format_grade
-from gradepost.turnel_grade_post_creator import TunnelPitchCreator
+from gradepost.tunnel_grade_post_creator import TunnelPitchCreator
 from infrastructure.csvmanager import CSVManager
 from infrastructure.dxftoimg import DXF2IMG
 from infrastructure.structuresystem import StructureProcessor
 from model.grade.vip_object_data import VIPObjectDATA
 from model.grade.vipdata import VIPdata
-from common.common_utils import format_distance
+from common.common_utils import format_station_km
 import os
+
+from common.bve_syntax import object_folder_from
 
 class ProfileProcessor:
     """프로파일 처리기
@@ -42,12 +44,12 @@ class ProfileProcessor:
         # 이미지 저장
         object_index = self.start_idx
         objects = []
-        object_folder = self.target_directory.split("Object/")[-1]
+        object_folder = object_folder_from(self.target_directory)
 
         for i, vip in enumerate(vipdats):
             self.log(f"VIP {vip.VIPNO} 처리 중... ({i + 1}/{len(vipdats)})")
             if not start <= vip.VIP_STA <= end:
-                self.log(f"범위를 벗어났습니다. 해당 구간은 건너뜁니다.")
+                self.log("범위를 벗어났습니다. 해당 구간은 건너뜁니다.")
                 continue
             lines = get_vcurve_lines(vip)
             if not lines:
@@ -108,7 +110,6 @@ class ProfileProcessor:
         tunnel_post_generator = TunnelPitchCreator(self.work_directory)
         converter = DXF2IMG()
 
-        output_image = self.work_directory + 'output_image.png'
         filename = 'BVC-수정됨.dxf'
 
         current_grade = vip.next_slope
@@ -118,13 +119,14 @@ class ProfileProcessor:
         img_f_name2 = f'VIP{vip.VIPNO}_{pitchtype}_기울기표'  # 기울기표 파일명
         openfile_name2 = f'기울기표_{structure}용'
 
-        final_output_image = self.work_directory + img_f_name2 + '.png'
+        final_output_image = os.path.join(self.work_directory, img_f_name2 + '.png')
 
         if structure == '터널' or self.al_type == '도시철도':
             tunnel_post_generator.create_tunnel_pitch_image(filename, img_text2)
-            modifed_path = self.work_directory + 'BVC-수정됨.dxf'
+            modifed_path = os.path.join(self.work_directory, filename)
             output_paths = converter.convert_dxf2img([modifed_path], img_format='.png')
-            converter.trim_and_resize_image(output_paths[0], final_output_image, target_size=(320, 200))
+            if output_paths:
+                converter.trim_and_resize_image(output_paths[0], final_output_image, target_size=(320, 200))
         else:
             grade_post_generator.create_grade_post(img_text2, img_text3, img_f_name2, (0, 0, 0), '좌')
 
@@ -148,7 +150,7 @@ class ProfileProcessor:
         else:
             grade_text = ''
 
-        station_text = f'{format_distance(current_sta)}'
+        station_text = f'{format_station_km(current_sta)}'
 
         img_f_name = f'VIP{vipdata.VIPNO}_{viptype}'
         r = str(int(vipdata.vradius))
@@ -160,4 +162,5 @@ class ProfileProcessor:
         DXFReplacer.replace_text_in_dxf(file_path, modifed_path, station_text, grade_text, vipdata.seg, r)
 
         output_paths = converter.convert_dxf2img([modifed_path], img_format='.png')
-        converter.trim_and_resize_image(output_paths[0], final_output_image, target_size=(320, 200))
+        if output_paths:
+            converter.trim_and_resize_image(output_paths[0], final_output_image, target_size=(320, 200))

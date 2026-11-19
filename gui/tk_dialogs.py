@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, ttk, messagebox ,simpledialog
+from tkinter import filedialog, ttk
 from controller.dialogs import DialogService
 from gui.offset_setting_ui import OFFSetSettingUI
 from gui.track_setting_ui import TRACKSettingUI
@@ -9,12 +9,12 @@ class TkDialogService(DialogService):
     def __init__(self, master):
         self.master = master
 
-    def select_file(self, tilte, file_ext) -> str | None:
+    def select_file(self, title, file_ext) -> str | None:
         return filedialog.askopenfilename(
             parent=self.master,
             defaultextension=file_ext,
             filetypes=[(f"{file_ext} files", f"*{file_ext}")],
-            title=f"{file_ext} 파일 선택")
+            title=title)
 
     def select_directory(self, title: str) -> str:
         return filedialog.askdirectory(
@@ -44,7 +44,7 @@ class TkDialogService(DialogService):
         self.master.wait_window(dialog)  # 창 닫힐 때까지 대기
         return dialog.result
 
-    def oepn_track_setting(self):
+    def open_track_setting(self):
         dialog = TRACKSettingUI(self.master)
         self.master.wait_window(dialog)
         return dialog.result

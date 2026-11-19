@@ -38,7 +38,6 @@ class BVEVIPDATABuilder(VIPDATABuilder):
             - slope는 m/m 단위를 사용해야 하며, ‰ 단위일 경우 외부에서 변환이 필요합니다.
         """
         vipdatas: list[VIPdata] = []
-        iscurve = False
         i = 1
         for section in data:
             if not section:

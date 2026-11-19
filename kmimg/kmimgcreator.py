@@ -1,3 +1,4 @@
+import os
 import textwrap
 
 from PIL import Image, ImageDraw, ImageFont
@@ -91,7 +92,7 @@ class KMImgCreator:
     def save_png(img, filename, work_directory):
         if not filename.endswith('.png'):
             filename += '.png'
-        img.save(work_directory + filename)
+        img.save(os.path.join(work_directory, filename))
 
     @staticmethod
     def draw_three_digits(

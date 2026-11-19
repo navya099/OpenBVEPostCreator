@@ -11,5 +11,5 @@ class CurveOutputService:
             work_directory,
             replacements={
                 f"LoadTexture, {curvetype}.png,": f"LoadTexture, {img_f_name}.png,",
-                f"LoadTexture, R.png,": f"LoadTexture, {img_f_name}_{int(radius)}.png,"
+                "LoadTexture, R.png,": f"LoadTexture, {img_f_name}_{int(radius)}.png,"
             })

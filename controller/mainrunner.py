@@ -1,4 +1,4 @@
-from common.generatorfactory import GeneratorFactory
+from common.generator_factory import GeneratorFactory
 
 class MainRunner:
     def __init__(self, state, logger, generator_type):

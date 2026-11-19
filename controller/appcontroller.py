@@ -49,27 +49,16 @@ class AppController:
         self.select_file('info_path', 'info 파일 선택', '*.*')
 
     def run(self):
-        #사전작업
         try:
-            setup = PreRunSetup(
-                dialogs=self.dialogs,
-                state=self.state,
-                logger=self.log
-            )
-
+            # 사전작업 (노선/제표 선택, 설정 검증)
+            setup = PreRunSetup(dialogs=self.dialogs, state=self.state, logger=self.log)
             if not setup.run():
-                self.log(f"사전 설정 실패")
+                self.log("사전 설정 실패")
                 return
 
-            runner = MainRunner(
-                state=self.state,
-                logger=self.log,
-                generator_type=self.state.posttype
-            )
-            runner.run()
+            MainRunner(state=self.state, logger=self.log, generator_type=self.state.posttype).run()
         except Exception as ex:
             self.log(f'치명적 실행 에러: {ex}')
-            return
 
     def set_offset(self):
         result = self.dialogs.open_offset_setting()
@@ -80,10 +69,10 @@ class AppController:
     def update_state(self, gui_state: dict):
         for key, value in gui_state.items():
             setattr(self.state, key, value)
-        self.log(f"상태 설정 완료")
+        self.log("상태 설정 완료")
 
     def set_track(self):
-        result = self.dialogs.oepn_track_setting()
+        result = self.dialogs.open_track_setting()
         if result:
             self.state.track_mode = result["mode"]
             self.state.track_direction = result["direction"]

@@ -1,4 +1,4 @@
-from curvepost.curveline.ouputservice import CurveOutputService
+from curvepost.curveline.output_service import CurveOutputService
 from curvepost.metro.metro_processor import CityLineProcess
 from infrastructure.csvmanager import CSVManager
 import os

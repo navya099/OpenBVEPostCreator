@@ -1,37 +1,20 @@
-import os
 import re
 
+from common.info_format import InfoFormat, detect_info_format
 from gradepost.bve_vipdata_builder import BVEVIPDATABuilder
 from gradepost.c3d_vipdata_builder import C3DVIPDATABuilder
 
 
 class VIPPreprocessor:
+    BUILDERS = {
+        InfoFormat.BVE: BVEVIPDATABuilder,
+        InfoFormat.CIVIL3D: C3DVIPDATABuilder,
+    }
+
     @staticmethod
     def get_builder(path):
-        flag = VIPPreprocessor.define_flag_from_read_file(path)
-        if flag == 'BVE':
-            return BVEVIPDATABuilder()
-        elif flag == 'CIVIL3D':
-            return C3DVIPDATABuilder()
-        else:
-            raise ValueError(f"지원하지 않는 flag: {flag}")
-
-
-    @staticmethod
-    def define_flag_from_read_file(pitch_info_path):
-        flag = None
-        try:
-            file_path = pitch_info_path
-            ext = os.path.splitext(file_path)[1].lower()
-            if ext == ".txt":
-                flag = 'BVE'
-            elif ext == ".xlsx":
-                flag = 'CIVIL3D'
-            else:
-                raise ValueError('지원하지 않는 FLAG')
-            return flag
-        except Exception as e:
-            raise e
+        """정보 파일 확장자에 맞는 빌더 반환"""
+        return VIPPreprocessor.BUILDERS[detect_info_format(path)]()
 
     @staticmethod
     def remove_duplicate_pitch(data):
