@@ -1,6 +1,8 @@
-# infrastructure/filesystem.py
+# infrastructure/filemanager.py
 import os
 import shutil
+
+
 class FileSystemService:
     @staticmethod
     def ensure_directory(path, logger=None):
@@ -17,48 +19,64 @@ class FileSystemService:
         return os.path.join(path, string + '/')
 
     @staticmethod
-    def copy_all_files(source_directory, target_directory, include_extensions=None, exclude_extensions=None, is_delete_original=True):
-        """
-        원본 폴더의 모든 파일을 대상 폴더로 복사 (대상 폴더의 모든 데이터 제거)
+    def _check_safe_to_delete(path):
+        """드라이브 루트, 홈 폴더, 빈 경로 같은 위험한 경로의 삭제를 막는다."""
+        if not path or not str(path).strip():
+            raise ValueError("삭제할 경로가 비어 있습니다.")
+        real = os.path.realpath(path)
+        if real in (os.path.realpath(os.sep), os.path.realpath(os.path.expanduser('~'))) \
+                or os.path.dirname(real) == real:
+            raise ValueError(f"보호된 경로는 삭제할 수 없습니다: {path}")
+
+    @staticmethod
+    def reset_directory(path):
+        """폴더를 비우고 다시 만든다. 프로그램 전용 작업 폴더에만 사용할 것."""
+        FileSystemService._check_safe_to_delete(path)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.makedirs(path, exist_ok=True)
+
+    @staticmethod
+    def remove_directory(path):
+        """폴더를 통째로 삭제한다. 프로그램 전용 작업 폴더에만 사용할 것."""
+        FileSystemService._check_safe_to_delete(path)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+
+    @staticmethod
+    def copy_files(source_directory, target_directory, include_extensions=None, exclude_extensions=None):
+        """원본 폴더의 파일을 대상 폴더로 복사한다.
+
+        대상 폴더의 기존 파일은 삭제하지 않으며, 같은 이름의 파일만 덮어쓴다.
+        하위 폴더는 복사하지 않는다.
 
         :param source_directory: 원본 폴더 경로
-        :param target_directory: 대상 폴더 경로
-        :param include_extensions: 복사할 확장자의 리스트 (예: ['.txt', '.csv'] → 이 확장자만 복사)
-        :param exclude_extensions: 제외할 확장자의 리스트 (예: ['.log', '.tmp'] → 이 확장자는 복사 안 함)
-        :param is_delete_original: 원본 삭제유무
+        :param target_directory: 대상 폴더 경로 (없으면 생성)
+        :param include_extensions: 복사할 확장자 목록 (예: ['.txt', '.csv'] → 이 확장자만 복사)
+        :param exclude_extensions: 제외할 확장자 목록 (예: ['.log', '.tmp'] → 이 확장자는 복사 안 함)
+        :return: (복사한 파일 수, 그중 덮어쓴 파일 수)
         """
+        os.makedirs(target_directory, exist_ok=True)
 
-        # 대상 폴더가 존재하면 삭제 후 다시 생성
-        if os.path.exists(target_directory):
-
-            shutil.rmtree(target_directory)  # 대상 폴더 삭제
-        os.makedirs(target_directory, exist_ok=True)  # 대상 폴더 재생성
-
-        # 원본 폴더의 모든 파일을 가져와 복사
+        copied = overwritten = 0
         for filename in os.listdir(source_directory):
             source_path = os.path.join(source_directory, filename)
+            if not os.path.isfile(source_path):
+                continue
+
+            file_ext = os.path.splitext(filename)[1].lower()
+            if include_extensions and file_ext not in include_extensions:
+                continue
+            if exclude_extensions and file_ext in exclude_extensions:
+                continue
+
             target_path = os.path.join(target_directory, filename)
+            if os.path.exists(target_path):
+                overwritten += 1
+            shutil.copy2(source_path, target_path)  # 메타데이터 유지
+            copied += 1
 
-            # 파일만 처리 (폴더는 복사하지 않음)
-            if os.path.isfile(source_path):
-                file_ext = os.path.splitext(filename)[1].lower()  # 확장자 추출 후 소문자로 변환
-
-                # 포함할 확장자가 설정된 경우, 해당 확장자가 아니면 건너뛴다
-                if include_extensions and file_ext not in include_extensions:
-                    continue
-
-                # 제외할 확장자가 설정된 경우, 해당 확장자는 복사하지 않는다
-                if exclude_extensions and file_ext in exclude_extensions:
-                    continue
-
-                # 파일 복사 (메타데이터 유지)
-                shutil.copy2(source_path, target_path)
-
-        # 모든작업 종료후 원본폴더째로 삭제
-        if is_delete_original:
-            shutil.rmtree(source_directory)
-
-        print(f"📂 모든 파일이 {source_directory} → {target_directory} 로 복사되었습니다.")
+        return copied, overwritten
 
     @staticmethod
     def create_txt(output_file, data):

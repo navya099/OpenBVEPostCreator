@@ -1,3 +1,5 @@
+import os
+
 from common.bve_syntax import freeobj_line, rotation_for, validate_track_mode
 from infrastructure.filemanager import FileSystemService
 
@@ -14,11 +16,29 @@ class BaseOutputManager:
         self.track_index = index
 
     def copy_result_files(self, include_ext=None, exclude_ext=None):
-        FileSystemService.copy_all_files(
+        """작업 폴더의 결과물을 대상 폴더로 복사한 뒤 작업 폴더를 정리한다.
+
+        대상 폴더의 기존 파일은 지우지 않고, 같은 이름의 파일만 덮어쓴다.
+
+        :return: (복사한 파일 수, 그중 덮어쓴 파일 수)
+        """
+        self._check_target_directory()
+        result = FileSystemService.copy_files(
             self.work_directory, self.target_directory,
             include_ext or ['.csv', '.png', '.txt', '.jpg'],
             exclude_ext or ['.dxf', '.ai']
         )
+        FileSystemService.remove_directory(self.work_directory)
+        return result
+
+    def _check_target_directory(self):
+        """대상 폴더가 작업 폴더와 같거나 그 안에 있으면, 작업 폴더 정리 시 결과물이 함께 지워지므로 거부"""
+        if not self.target_directory:
+            raise ValueError("대상 디렉터리가 지정되지 않았습니다.")
+        work = os.path.realpath(self.work_directory)
+        target = os.path.realpath(self.target_directory)
+        if target == work or target.startswith(work + os.sep):
+            raise ValueError(f"대상 디렉터리는 작업 폴더({self.work_directory}) 밖에 있어야 합니다.")
 
     def create_post_lines(self, data_list, prefix: str, type_attr: str) -> list[str]:
         """오브젝트 데이터 목록을 .freeobj 구문 목록으로 변환

@@ -56,15 +56,22 @@ class BaseObjectGenerator:
         self.source_directory = os.path.join(self.base_source_directory, self.state.alignment_type)
         self.log(f"소스 경로: {self.source_directory}")
 
-        FileSystemService.copy_all_files(
+        # 작업 폴더는 프로그램 전용 임시 폴더이므로 매번 비우고 시작한다
+        FileSystemService.reset_directory(self.work_directory)
+        FileSystemService.copy_files(
             self.source_directory,
             self.work_directory,
             include_extensions=['.jpg', '.png'],
             exclude_extensions=['.dxf', '.ai', '.csv'],
-            is_delete_original=False
         )
-        FileSystemService.ensure_directory(self.work_directory, self.log)
+        self.log(f"작업 디렉토리: {self.work_directory}")
         self.log(f"대상 디렉토리: {self.state.target_directory}")
+
+    def copy_results(self, output_manager):
+        """결과물을 대상 폴더로 복사 (대상 폴더의 기존 파일은 유지, 같은 이름만 덮어씀)"""
+        self.log("파일 복사 중...")
+        copied, overwritten = output_manager.copy_result_files()
+        self.log(f"파일 {copied}개 복사 완료 (기존 파일 덮어씀: {overwritten}개)")
 
     def load_structures(self):
         processor = StructureProcessor(self.state.structure_excel_path)

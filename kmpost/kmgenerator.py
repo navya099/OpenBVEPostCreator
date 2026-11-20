@@ -31,5 +31,4 @@ class KMGenerator(BaseObjectGenerator):
         )
         self.log("파일 저장 중...")
         output_manager.save_txt_files(index_datas, post_datas)
-        self.log("파일 복사 중...")
-        output_manager.copy_result_files()
+        self.copy_results(output_manager)

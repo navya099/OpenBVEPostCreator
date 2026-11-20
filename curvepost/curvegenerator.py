@@ -37,5 +37,4 @@ class CurveGenerator(BaseObjectGenerator):
         FileSystemService.create_txt(post_file, output_manager.create_curve_post_txt(objectdatas))
         output_manager.create_curve_index_txt(objectdatas, index_file)
 
-        self.log("파일 복사 중...")
-        output_manager.copy_result_files()
+        self.copy_results(output_manager)
